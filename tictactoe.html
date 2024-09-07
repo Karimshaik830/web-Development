@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0; /* Background color of the page */
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      justify-content: center;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      margin-bottom: 20px;
+      background-color: #fff; /* Background color of the board */
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      cursor: pointer;
+    }
+    .cell:hover {
+      background-color: #ccc;
+    }
+    #status {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #winner-popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+    .btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+    #winner-text {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    #winner-emoji {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    #player-names {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div id="container">
+  <div id="board">
+    <div class="cell" onclick="handleMove(0)"></div>
+    <div class="cell" onclick="handleMove(1)"></div>
+    <div class="cell" onclick="handleMove(2)"></div>
+    <div class="cell" onclick="handleMove(3)"></div>
+    <div class="cell" onclick="handleMove(4)"></div>
+    <div class="cell" onclick="handleMove(5)"></div>
+    <div class="cell" onclick="handleMove(6)"></div>
+    <div class="cell" onclick="handleMove(7)"></div>
+    <div class="cell" onclick="handleMove(8)"></div>
+  </div>
+  <div id="status">Player X's turn</div>
+  <div id="player-names">
+    <label for="player1">Player 1 Name: </label>
+    <input type="text" id="player1" placeholder="Player 1">
+    <label for="player2">Player 2 Name: </label>
+    <input type="text" id="player2" placeholder="Player 2">
+  </div>
+  <button id="restart-btn" class="btn" onclick="restartGame()">Restart Game</button>
+  <button id="new-game-btn" class="btn" onclick="newGame()" style="display: none;">New Game</button>
+</div>
+
+<div id="winner-popup">
+  <div class="popup-content">
+    <span id="winner-text"></span>
+    <span id="winner-emoji"></span>
+    <div>
+      <button id="new-game-popup-btn" class="btn" onclick="newGame()">New Game</button>
+    </div>
+    <span class="close-btn" onclick="closePopup()">✖</span>
+  </div>
+</div>
+
+<script>
+  let currentPlayer = 'X';
+  let board = ['', '', '', '', '', '', '', '', ''];
+  const winningCombos = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+
+  function handleMove(index) {
+    if (board[index] === '' && !checkWinner()) {
+      board[index] = currentPlayer;
+      render();
+      if (!checkWinner()) {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        document.getElementById('status').innerText = `${getPlayerName(currentPlayer)}'s turn`;
+      }
+    }
+  }
+
+  function checkWinner() {
+    for (let i = 0; i < winningCombos.length; i++) {
+      const [a, b, c] = winningCombos[i];
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        document.getElementById('status').innerText = `${getPlayerName(board[a])} wins!`;
+        openPopup(`${getPlayerName(board[a])} wins!`, '🎉');
+        document.getElementById('board').style.pointerEvents = 'none'; // Disable clicks after game is won
+        highlightWinnerCells([a, b, c]);
+        document.getElementById('new-game-btn').style.display = 'block'; // Show "New Game" button
+        return true;
+      }
+    }
+    if (board.every(cell => cell !== '')) {
+      document.getElementById('status').innerText = `It's a draw!`;
+      openPopup(`It's a draw!`, '😐');
+      document.getElementById('new-game-btn').style.display = 'block'; // Show "New Game" button
+      return true;
+    }
+    return false;
+  }
+
+  function render() {
+    for (let i = 0; i < board.length; i++) {
+      document.getElementsByClassName('cell')[i].innerText = board[i];
+    }
+  }
+
+  function highlightWinnerCells(cells) {
+    cells.forEach(index => {
+      document.getElementsByClassName('cell')[index].style.backgroundColor = 'lightgreen';
+    });
+  }
+
+  function openPopup(message, emoji) {
+    document.getElementById('winner-text').innerText = message;
+    document.getElementById('winner-emoji').innerText = emoji;
+    document.getElementById('winner-popup').style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('winner-popup').style.display = 'none';
+  }
+
+  function restartGame() {
+    currentPlayer = 'X';
+    board = ['', '', '', '', '', '', '', '', ''];
+    render();
+    document.getElementById('status').innerText = `${getPlayerName(currentPlayer)}'s turn`;
+    document.getElementById('board').style.pointerEvents = 'auto'; // Enable clicks
+    document.getElementById('new-game-btn').style.display = 'none'; // Hide "New Game" button
+    document.querySelectorAll('.cell').forEach(cell => {
+      cell.style.backgroundColor = '#ddd';
+    });
+  }
+
+  function newGame() {
+    document.getElementById('new-game-btn').style.display = 'none'; // Hide "New Game" button
+    closePopup(); // Close the popup after starting a new game
+    restartGame();
+  }
+
+  function getPlayerName(player) {
+    return player === 'X' ? document.getElementById('player1').value || 'Player 1' : document.getElementById('player2').value || 'Player 2';
+  }
+
+  render();
+</script>
+
+</body>
+</html>
