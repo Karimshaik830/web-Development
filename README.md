@@ -51,15 +51,7 @@ Features
 3. **Delete a Task:**
    - Click the "Delete" button next to the task to remove it from the list.
 
-## Deployment
-
-To deploy this app on GitHub Pages:
-
-1. Go to your repository on GitHub.
-2. Click on **Settings**.
-3. Scroll down to the **GitHub Pages** section.
-4. Under **Source**, select the **main branch** and click **Save**.
-5. Access your live site at `https://karimulla.github.io/To-Do-List-App/`.
+.
 
 ## Contributing
 
